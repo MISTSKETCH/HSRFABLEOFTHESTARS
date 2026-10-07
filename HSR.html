@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astral Reading — HSR Oracle</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ── VARIABLES ── */
+:root{
+  --bg:     #0d0818;
+  --bg2:    #120d2a;
+  --gold:   #c9a84c;
+  --gold2:  #e8c97a;
+  --silver: #c8b4e8;
+  --dim:    #7060a0;
+  --red:    #c97070;
+}
+
+/* ── BODY ── */
+body{
+  font-family:'EB Garamond',Georgia,serif;
+  background:var(--bg);
+  color:var(--silver);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── STARFIELD ── */
+.stars{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 50%,#1a083580 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 20%,#0a153080 0%,transparent 50%),
+    var(--bg);
+}
+.stars::before,.stars::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,#ffffff55,transparent),
+    radial-gradient(1px 1px at 25% 40%,#ffffff44,transparent),
+    radial-gradient(1px 1px at 40% 10%,#ffffff66,transparent),
+    radial-gradient(1px 1px at 55% 60%,#ffffff33,transparent),
+    radial-gradient(1px 1px at 70% 30%,#ffffff55,transparent),
+    radial-gradient(1px 1px at 85% 75%,#ffffff44,transparent),
+    radial-gradient(1px 1px at 15% 80%,#ffffff33,transparent),
+    radial-gradient(1px 1px at 90% 10%,#ffffff55,transparent),
+    radial-gradient(1px 1px at 35% 90%,#ffffff44,transparent),
+    radial-gradient(1px 1px at 60% 50%,#ffffff22,transparent),
+    radial-gradient(1px 1px at 75% 85%,#ffffff44,transparent),
+    radial-gradient(1px 1px at  5% 50%,#ffffff33,transparent),
+    radial-gradient(1px 1px at 95% 45%,#ffffff55,transparent),
+    radial-gradient(1px 1px at 48% 25%,#ffffff44,transparent),
+    radial-gradient(1px 1px at 20% 65%,#ffffff33,transparent);
+  background-size:600px 600px;
+}
+.stars::after{background-size:400px 400px;opacity:.5}
+
+/* ── APP ── */
+.app{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:32px 16px 80px;
+}
+
+/* ── TITLE ── */
+h1{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(22px,4.5vw,36px);
+  color:var(--gold2);
+  text-align:center;
+  letter-spacing:.08em;
+  margin-bottom:6px;
+  text-shadow:0 0 40px rgba(232,201,122,.3);
+}
+.subtitle{
+  font-size:15px;color:var(--dim);
+  text-align:center;letter-spacing:.25em;
+  text-transform:uppercase;margin-bottom:28px;
+}
+.divider{
+  width:180px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--dim),transparent);
+  margin:0 auto 28px;
+}
+
+/* ── QUESTION SECTION ── */
+.question-section{
+  width:100%;max-width:580px;
+  margin-bottom:32px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.section-label{
+  font-family:'Cinzel Decorative',serif;
+  font-size:13px;color:var(--gold);
+  letter-spacing:.18em;text-transform:uppercase;
+}
+select{
+  width:100%;background:#1a1035;
+  border:1px solid var(--dim);color:var(--silver);
+  font-family:'EB Garamond',Georgia,serif;font-size:18px;
+  padding:14px 40px 14px 16px;border-radius:6px;cursor:pointer;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237060a0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  transition:border-color .2s;
+}
+select:focus{outline:none;border-color:var(--gold)}
+select option{background:#1a1035}
+select:disabled{opacity:.4}
+
+/* ── BUTTONS ── */
+.begin-btn{
+  background:transparent;border:1px solid var(--gold);
+  color:var(--gold2);font-family:'Cinzel Decorative',serif;
+  font-size:15px;padding:14px 34px;border-radius:4px;
+  cursor:pointer;letter-spacing:.1em;transition:all .3s;
+}
+.begin-btn:hover{background:rgba(201,168,76,.12);box-shadow:0 0 20px rgba(201,168,76,.15)}
+.begin-btn:disabled{opacity:.35;cursor:not-allowed}
+.reset-btn{
+  background:transparent;border:1px solid #2a1f50;
+  color:var(--dim);font-family:'Cinzel Decorative',serif;
+  font-size:10px;padding:8px 20px;border-radius:4px;
+  cursor:pointer;letter-spacing:.1em;transition:all .2s;margin-top:12px;
+}
+.reset-btn:hover{border-color:var(--dim);color:var(--silver)}
+
+/* ── SPREAD SECTION ── */
+.spread-section{
+  display:none;flex-direction:column;align-items:center;
+  width:100%;max-width:760px;
+}
+.spread-section.visible{display:flex}
+.spread-label{
+  font-family:'Cinzel Decorative',serif;
+  font-size:13px;color:var(--gold);
+  letter-spacing:.18em;text-align:center;
+  margin-bottom:6px;text-transform:uppercase;
+  max-width:560px;line-height:1.6;
+}
+.spread-hint{
+  font-size:16px;color:var(--silver);
+  font-style:italic;text-align:center;
+  margin-bottom:20px;
+  transition:color .4s;
+  min-height:22px;
+}
+.spread-hint.done{color:var(--gold2)}
+
+/* ── PICK PROGRESS ── */
+.pick-progress{
+  display:flex;gap:12px;margin-bottom:20px;
+}
+.pick-pip{
+  width:28px;height:4px;border-radius:2px;
+  background:#2a1f50;transition:background .4s;
+}
+.pick-pip.active{background:var(--gold)}
+
+/* ── CARD POOL (all 13 for picking) ── */
+.cards-pool{
+  display:flex;flex-wrap:wrap;
+  gap:10px;justify-content:center;
+  max-width:760px;margin-bottom:28px;
+}
+.pick-wrap{
+  width:92px;height:164px;
+  perspective:800px;cursor:pointer;
+  transition:transform .2s,filter .2s,opacity .4s;
+  position:relative;
+  flex-shrink:0;
+}
+.pick-wrap:hover:not(.picked):not(.dimmed){
+  transform:translateY(-8px);
+  filter:brightness(1.25);
+}
+.pick-wrap.dimmed{opacity:.2;cursor:not-allowed;pointer-events:none}
+.pick-wrap .card-inner{
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;
+  transition:transform .65s cubic-bezier(.23,1,.32,1);
+}
+.pick-wrap.flipped .card-inner{transform:rotateY(180deg)}
+.pick-wrap .card-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  border-radius:7px;overflow:hidden;
+  border:1px solid var(--dim);
+}
+.pick-wrap .card-back{background:var(--bg2)}
+.pick-wrap .card-front{transform:rotateY(180deg)}
+.pick-wrap .card-face img{width:100%;height:100%;object-fit:cover;display:block}
+.pick-wrap.picked{box-shadow:0 0 20px rgba(200,180,232,.4)}
+
+/* position badge on picked cards */
+.pick-badge{
+  position:absolute;bottom:0;left:0;right:0;z-index:3;
+  background:rgba(13,8,24,.88);
+  color:var(--gold2);
+  font-family:'Cinzel Decorative',serif;
+  font-size:9px;letter-spacing:.08em;
+  text-align:center;padding:3px 2px 4px;
+  border-radius:0 0 7px 7px;
+}
+
+/* ── CHOSEN CARDS ROW (shown after all 3 picked) ── */
+.chosen-row{
+  display:none;
+  flex-wrap:wrap;gap:20px;
+  justify-content:center;margin-bottom:28px;
+}
+.chosen-row.visible{display:flex}
+.chosen-slot{display:flex;flex-direction:column;align-items:center;gap:10px}
+.chosen-pos{
+  font-family:'Cinzel Decorative',serif;
+  font-size:10px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;
+}
+.chosen-card{
+  width:150px;height:268px;
+  border-radius:9px;overflow:hidden;
+  border:1px solid var(--dim);
+  box-shadow:0 0 22px rgba(200,180,232,.3);
+}
+.chosen-card img{width:100%;height:100%;object-fit:cover;display:block}
+.chosen-name{
+  font-family:'Cinzel Decorative',serif;
+  font-size:11px;color:var(--gold2);letter-spacing:.08em;text-align:center;
+}
+.chosen-text{
+  width:150px;
+  background:#150e2a;border:1px solid #2a1f50;
+  border-radius:6px;padding:10px;
+}
+.chosen-text p{
+  color:var(--silver);font-size:14px;
+  line-height:1.6;font-style:italic;text-align:center;
+}
+
+/* ── ORACLE SECTION ── */
+.fourth-section{
+  display:none;flex-direction:column;align-items:center;
+  width:100%;max-width:700px;gap:4px;
+}
+.fourth-section.visible{display:flex}
+.fourth-title{
+  font-family:'Cinzel Decorative',serif;font-size:13px;
+  color:var(--gold);letter-spacing:.18em;text-align:center;
+  text-transform:uppercase;margin-bottom:4px;
+}
+.fourth-hint{
+  font-size:15px;color:var(--dim);font-style:italic;
+  text-align:center;margin-bottom:16px;
+}
+
+/* oracle cards — 3x2 grid */
+.fourth-cards-row{
+  display:grid;
+  grid-template-columns:repeat(3,130px);
+  gap:12px;justify-content:center;
+  margin-bottom:20px;
+}
+.fourth-wrap{
+  width:130px;height:232px;
+  perspective:800px;cursor:pointer;
+  transition:transform .2s,filter .2s;
+}
+.fourth-wrap:hover:not(.chosen-oracle){transform:translateY(-6px);filter:brightness(1.15)}
+.fourth-wrap .card-inner{
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;
+  transition:transform .7s cubic-bezier(.23,1,.32,1);
+}
+.fourth-wrap.flipped .card-inner{transform:rotateY(180deg)}
+.fourth-wrap .card-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  border-radius:8px;overflow:hidden;
+  border:1px solid var(--dim);
+}
+.fourth-wrap .card-back{background:var(--bg2)}
+.fourth-wrap .card-front{transform:rotateY(180deg)}
+.fourth-wrap .card-face img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── ORACLE RESULTS ── */
+#oracleResults{
+  width:100%;max-width:520px;
+  display:flex;flex-direction:column;gap:12px;margin-bottom:8px;
+}
+.result-block{
+  background:#130c28;border:1px solid #2a1f50;
+  border-radius:8px;padding:18px 20px;
+}
+.result-char{
+  font-family:'Cinzel Decorative',serif;
+  font-size:13px;color:var(--gold2);letter-spacing:.08em;margin-bottom:6px;
+}
+.result-title{
+  font-size:13px;color:var(--gold);
+  letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;
+}
+.result-text{color:var(--silver);font-size:17px;line-height:1.7;font-style:italic}
+.result-text.warning{color:var(--red)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:500px){
+  .pick-wrap{width:74px;height:132px}
+  .chosen-card{width:120px;height:214px}
+  .chosen-text{width:120px}
+  .fourth-cards-row{grid-template-columns:repeat(3,100px)}
+  .fourth-wrap{width:100px;height:178px}
+}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="app">
+
+  <!-- TITLE -->
+  <h1>✦ Astral Reading ✦</h1>
+  <p class="subtitle">Honkai: Star Rail Oracle</p>
+  <div class="divider"></div>
+
+  <!-- QUESTION PICKER -->
+  <div class="question-section">
+    <p class="section-label">✦ Choose your question ✦</p>
+    <select id="questionSelect">
+      <option value="">— Draw a question from the stars —</option>
+      <option>Am I walking on the right path?</option>
+      <option>Do I need to learn more things?</option>
+      <option>How should I manage a certain relationship or friendship from the past?</option>
+      <option>How would I develop and grow?</option>
+      <option>Should I be more determined?</option>
+      <option>Should I love myself more?</option>
+      <option>There's a cardboard box. Should I go through it?</option>
+      <option>There's a trash can. Should I go through it?</option>
+      <option>What are some areas I need to pay attention to?</option>
+      <option>What are some of the issues I should focus on or deal with?</option>
+      <option>What are some of the opportunities or challenges that may appear?</option>
+      <option>What are some of the things that affected my mood?</option>
+      <option>What are the areas I should work on?</option>
+      <option>What are the goals I should focus on?</option>
+      <option>What are the important experiences and lessons I learned in the past year?</option>
+      <option>What are the old habits that I should stop?</option>
+      <option>What are the relationships that I need to pay attention to?</option>
+      <option>What are the specific issues I should focus on in my relationships?</option>
+      <option>What will happen to my relationships?</option>
+      <option>What will happen with my job?</option>
+      <option>Which areas should I learn to let go of?</option>
+      <option>Will I encounter opportunities?</option>
+      <option>Will I face challenges?</option>
+      <option>Will I get a 6-star in my next 10-pull?</option>
+      <option>Will I get a good player to carry me?</option>
+      <option>Will I get a stable job?</option>
+      <option>Will I get ambushed by a monster around the next corner?</option>
+      <option>Will I get an early 6-star?</option>
+      <option>Will I get loads of Curios from the Big Lotto?</option>
+      <option>Will I get more lucky in my pulls?</option>
+      <option>Will I get more lucky in the Simulated Universe?</option>
+      <option>Will I get the romance I want?</option>
+      <option>Will I lose my next 50/50?</option>
+      <option>Will I pass my exam?</option>
+      <option>Will I pull the characters I want?</option>
+      <option>Will I stop being single?</option>
+      <option>Will I suddenly get rich?</option>
+      <option>Will something good happen to me?</option>
+      <option>Will there be chances to learn new things?</option>
+      <option>Will there be new opportunities for me to develop and grow?</option>
+      <option>Will there be opportunities to travel or go on adventures?</option>
+    </select>
+    <button class="begin-btn" id="revealBtn" onclick="startReading()">✦ Begin the Reading ✦</button>
+  </div>
+
+  <!-- SPREAD SECTION -->
+  <div class="spread-section" id="spreadSection">
+    <p class="spread-label" id="spreadLabel">Past · Present · Future</p>
+    <p class="spread-hint" id="spreadHint">Choose your Past card ✦</p>
+    <div class="pick-progress">
+      <div class="pick-pip" id="pip0"></div>
+      <div class="pick-pip" id="pip1"></div>
+      <div class="pick-pip" id="pip2"></div>
+    </div>
+    <!-- All 13 cards to pick from -->
+    <div class="cards-pool" id="cardsPool"></div>
+    <!-- Chosen cards revealed here -->
+    <div class="chosen-row" id="chosenRow"></div>
+  </div>
+
+  <!-- ORACLE SECTION -->
+  <div class="fourth-section" id="fourthSection">
+    <div class="divider"></div>
+    <p class="fourth-title">✦ Draw your Oracle Card ✦</p>
+    <p class="fourth-hint">Choose one card to receive your fortune &amp; revelation</p>
+    <div class="fourth-cards-row" id="fourthCardsRow"></div>
+    <div id="oracleResults"></div>
+    <button class="reset-btn" onclick="resetReading()">↺ Begin a New Reading</button>
+  </div>
+
+</div>
+<script>
+// ── CARD DATA ──────────────────────────────────────────────────────────────
+const BACK = 'backcard.webp';
+
+const CARDS = [
+  {
+    file:'1.png', name:'Topaz & Numby',
+    past:'Worked very hard and achieved results.',
+    present:'Busy with many demanding tasks.',
+    future:'Future rewards and success will come from hard work.',
+    fortune:'Fortune is felicitous. Your work will pay off.',
+    warning:'Worked long without rewards.',
+    revelation:'Have faith; success is coming soon.',
+  },
+  {
+    file:'2.png', name:'Ruan Mei',
+    past:'Grew up surrounded by love and warmth.',
+    present:'Neglecting relationships and feeling stagnant.',
+    future:'Relationships improve and new opportunities emerge.',
+    fortune:'Fortune is felicitous. Stay kind.',
+    warning:'Interpersonal or family bottleneck.',
+    revelation:'Nurture relationships and seek growth.',
+  },
+  {
+    file:'3.png', name:'March 7th',
+    past:'Ignored the self and old dreams.',
+    present:'Reflecting deeply on true identity.',
+    future:'Will achieve self-realization and transformation.',
+    fortune:'Fortune is inopportune. Face the past.',
+    warning:'You have forgotten your true self.',
+    revelation:'Rediscover your true self and a new goal.',
+  },
+  {
+    file:'4.png', name:'Luocha',
+    past:'Experienced major changes and endings.',
+    present:'Undergoing unavoidable loss and transformation.',
+    future:'Will witness endings and rebirth leading to a new world.',
+    fortune:'Fortune is unfavorable. Wait for a rebirth.',
+    warning:'Unable to accept the current situation.',
+    revelation:'Profound transformations are on the horizon.',
+  },
+  {
+    file:'5.png', name:'Kafka',
+    past:'Lived amid lies and conflicting expectations.',
+    present:'Exhausted and disconnected from your true self.',
+    future:'Will transform habits and rediscover confidence.',
+    fortune:'Fortune is unfavorable. Change is required.',
+    warning:'The voice of your heart is muffled.',
+    revelation:"Forge yourself anew and don't be held back.",
+  },
+  {
+    file:'6.png', name:'Jingliu',
+    past:'Experienced beauty, challenges, separation, and betrayal.',
+    present:'Currently suffering from betrayal and collapse.',
+    future:'May face greater shocks; stay alert and adapt.',
+    fortune:'Fortune is unfavorable. Adjust your thinking.',
+    warning:'Cannot let the past go.',
+    revelation:'Release old obsessions and seek freedom.',
+  },
+  {
+    file:'7.png', name:'Jing Yuan',
+    past:'Rested and maintained inner calm.',
+    present:'In a hopeful and peaceful period.',
+    future:'A positive attitude will bring exciting opportunities.',
+    fortune:'Fortune is felicitous. Just relax.',
+    warning:'Gloom appears amidst happiness.',
+    revelation:'Opportunities can heal the past and overcome darkness.',
+  },
+  {
+    file:'8.png', name:'Himeko',
+    past:'Had strong influence, enthusiasm, and witnessed many luxuries.',
+    present:'At a creative and ambitious peak.',
+    future:'A vibrant new phase awaits, fueled by passion and creativity.',
+    fortune:'Fortune is felicitous. You can achieve anything.',
+    warning:'You are your entire world.',
+    revelation:'Stay the course; you are heading in the right direction.',
+  },
+  {
+    file:'9.png', name:'Dr. Ratio',
+    past:'Focused heavily on studies and neglected practical duties.',
+    present:'Fear and self-limitation are causing missed opportunities.',
+    future:'Perseverance will lead to self-actualization and harmony.',
+    fortune:'Fortune is unfavorable. Hold on longer.',
+    warning:'Limitations rooted in lack of wisdom.',
+    revelation:'Break free from self-imposed limitations and doubts.',
+  },
+  {
+    file:'10.png', name:'Dan Heng · IL',
+    past:'Had few friends and often felt alone.',
+    present:'Lost in uncertainty and watching from the sidelines.',
+    future:'Will find strength in solitude and attract like-minded companions.',
+    fortune:'Fortune is decent. Wait patiently.',
+    warning:'You stand alone.',
+    revelation:'Embrace solitude and find inner strength and wisdom.',
+  },
+  {
+    file:'11.png', name:'Bronya',
+    past:'Worked hard against adversity for a better life.',
+    present:'Surrounded by challenges and bleak conditions.',
+    future:'Will face adversaries but also meet companions who accelerate growth.',
+    fortune:'Fortune is unfavorable. Wait for next year.',
+    warning:'Suffering builds on and on.',
+    revelation:'All ice and snow will melt with the arrival of spring next year.',
+  },
+  {
+    file:'12.png', name:'Black Swan',
+    past:'Tried meditation, contemplation, extensive reading, and glimpsed hidden secrets.',
+    present:'Now aloof, passive, and observant, preferring quiet reflection.',
+    future:'Will perceive truths others miss and gain a stable mental state.',
+    fortune:'You will experience great success.',
+    warning:'Unable to see through the situation.',
+    revelation:'Exercise patience and observe how events unfold.',
+  },
+  {
+    file:'13.png', name:'Argenti',
+    past:'You used to be dissatisfied with your external appearance and qualifications. You felt that you were not perfect enough.',
+    present:'People have criticized and judged you based on your external appearance, and now your perception is wavering.',
+    future:'In the future, you will gradually learn to accept yourself, break through societal prejudice, and discover your uniqueness.',
+    fortune:'Fortune is not bad. Ignore distractions.',
+    warning:'Not feeling confident.',
+    revelation:'Discover, learn to accept, and embrace your true self.',
+  },
+];
+
+const POSITIONS  = ['Past','Present','Future'];
+const PICK_HINTS = [
+  'Choose your Past card ✦',
+  'Choose your Present card ✦',
+  'Choose your Future card ✦',
+  'Your fate is written ✦',
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let shuffledDeck = [];   // all 13 shuffled
+let drawn        = [];   // 3 cards the user picks [past, present, future]
+let pickCount    = 0;    // 0,1,2 — which position we're filling
+let oraclePool   = [];   // 6 cards for oracle (not picked by user)
+let oracleChosen = null; // which oracle card was picked
+
+// ── SHUFFLE ────────────────────────────────────────────────────────────────
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+// ── START READING ──────────────────────────────────────────────────────────
+function startReading(){
+  const q=document.getElementById('questionSelect').value;
+  if(!q){alert('Please choose a question first!');return;}
+
+  // reset state
+  drawn=[];pickCount=0;oracleChosen=null;
+
+  shuffledDeck=shuffle(CARDS);
+
+  document.getElementById('spreadLabel').textContent='✦ '+q+' ✦';
+  document.getElementById('spreadHint').textContent=PICK_HINTS[0];
+  document.getElementById('spreadHint').classList.remove('done');
+  document.getElementById('spreadSection').classList.add('visible');
+  document.getElementById('fourthSection').classList.remove('visible');
+  document.getElementById('chosenRow').classList.remove('visible');
+  document.getElementById('chosenRow').innerHTML='';
+  document.getElementById('fourthCardsRow').innerHTML='';
+  document.getElementById('oracleResults').innerHTML='';
+  document.getElementById('revealBtn').disabled=true;
+  document.getElementById('questionSelect').disabled=true;
+
+  // reset progress pips
+  [0,1,2].forEach(function(i){
+    document.getElementById('pip'+i).classList.remove('active');
+  });
+
+  renderCardPool();
+  document.getElementById('spreadSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── RENDER ALL 13 CARDS FACE-DOWN ─────────────────────────────────────────
+function renderCardPool(){
+  const pool=document.getElementById('cardsPool');
+  pool.innerHTML='';
+
+  shuffledDeck.forEach(function(card,i){
+    const wrap=document.createElement('div');
+    wrap.className='pick-wrap';
+    wrap.id='pickWrap'+i;
+    wrap.innerHTML=`
+      <div class="card-inner">
+        <div class="card-face card-back">
+          <img src="${BACK}" alt="card back" loading="eager">
+        </div>
+        <div class="card-face card-front">
+          <img src="${card.file}" alt="${card.name}" loading="eager">
+        </div>
+      </div>
+    `;
+    wrap.onclick=function(){pickCard(i,card,wrap);};
+    pool.appendChild(wrap);
+  });
+}
+
+// ── USER PICKS A CARD ──────────────────────────────────────────────────────
+function pickCard(i,card,wrap){
+  if(wrap.classList.contains('picked') || wrap.classList.contains('dimmed')) return;
+  if(pickCount>=3) return;
+
+  // flip it
+  wrap.classList.add('picked','flipped');
+
+  // add position badge
+  const badge=document.createElement('div');
+  badge.className='pick-badge';
+  badge.textContent=POSITIONS[pickCount];
+  wrap.appendChild(badge);
+
+  // light up progress pip
+  document.getElementById('pip'+pickCount).classList.add('active');
+
+  // save card
+  drawn.push(card);
+  pickCount++;
+
+  // update hint
+  const hint=document.getElementById('spreadHint');
+  hint.textContent=PICK_HINTS[pickCount];
+  if(pickCount===3) hint.classList.add('done');
+
+  if(pickCount===3){
+    // dim all unchosen cards
+    shuffledDeck.forEach(function(_,j){
+      const w=document.getElementById('pickWrap'+j);
+      if(!w.classList.contains('picked')) w.classList.add('dimmed');
+    });
+
+    // build oracle pool from unchosen cards (first 6)
+    oraclePool=shuffledDeck.filter(function(c){
+      return !drawn.find(function(d){return d.file===c.file;});
+    }).slice(0,6);
+
+    // after a beat, reveal the chosen cards nicely
+    setTimeout(showChosenCards,900);
+  }
+}
+
+// ── SHOW THE 3 CHOSEN CARDS WITH READINGS ─────────────────────────────────
+function showChosenCards(){
+  const row=document.getElementById('chosenRow');
+  row.innerHTML='';
+  const keys=['past','present','future'];
+
+  drawn.forEach(function(card,i){
+    const slot=document.createElement('div');
+    slot.className='chosen-slot';
+    slot.innerHTML=`
+      <div class="chosen-pos">${POSITIONS[i]}</div>
+      <div class="chosen-card">
+        <img src="${card.file}" alt="${card.name}">
+      </div>
+      <div class="chosen-name">✦ ${card.name}</div>
+      <div class="chosen-text">
+        <p>${card[keys[i]]}</p>
+      </div>
+    `;
+    row.appendChild(slot);
+  });
+
+  row.classList.add('visible');
+
+  // scroll to chosen row
+  setTimeout(function(){
+    row.scrollIntoView({behavior:'smooth',block:'start'});
+  },200);
+
+  // trigger oracle after another pause
+  setTimeout(showOracleSection,1200);
+}
+
+// ── ORACLE SECTION ─────────────────────────────────────────────────────────
+function showOracleSection(){
+  const section=document.getElementById('fourthSection');
+  section.classList.add('visible');
+  renderOracleCards();
+  setTimeout(function(){
+    section.scrollIntoView({behavior:'smooth',block:'start'});
+  },200);
+}
+
+function renderOracleCards(){
+  const row=document.getElementById('fourthCardsRow');
+  row.innerHTML='';
+
+  oraclePool.forEach(function(card,i){
+    const wrap=document.createElement('div');
+    wrap.className='fourth-wrap';
+    wrap.id='oCard'+i;
+    wrap.innerHTML=`
+      <div class="card-inner">
+        <div class="card-face card-back">
+          <img src="${BACK}" alt="card back">
+        </div>
+        <div class="card-face card-front">
+          <img src="${card.file}" alt="${card.name}">
+        </div>
+      </div>
+    `;
+    wrap.onclick=function(){chooseOracle(i,card,wrap);};
+    row.appendChild(wrap);
+  });
+}
+
+function chooseOracle(i,card,wrap){
+  if(oracleChosen!==null) return;
+  oracleChosen=i;
+
+  wrap.classList.add('flipped','chosen-oracle');
+
+  // dim others
+  oraclePool.forEach(function(_,j){
+    if(j!==i){
+      const w=document.getElementById('oCard'+j);
+      w.style.opacity='0.25';
+      w.style.cursor='not-allowed';
+      w.style.pointerEvents='none';
+    }
+  });
+
+  setTimeout(function(){showOracleResults(card);},700);
+}
+
+function showOracleResults(card){
+  const container=document.getElementById('oracleResults');
+  container.innerHTML=`
+    <div class="result-block">
+      <div class="result-char">✦ ${card.name}</div>
+      <div class="result-title">Fortune</div>
+      <p class="result-text">${card.fortune}</p>
+    </div>
+    <div class="result-block">
+      <div class="result-char">✦ ${card.name}</div>
+      <div class="result-title">⚠ Warning</div>
+      <p class="result-text warning">${card.warning}</p>
+    </div>
+    <div class="result-block">
+      <div class="result-char">✦ ${card.name}</div>
+      <div class="result-title">Revelation</div>
+      <p class="result-text">${card.revelation}</p>
+    </div>
+  `;
+  setTimeout(function(){
+    container.scrollIntoView({behavior:'smooth',block:'start'});
+  },200);
+}
+
+// ── RESET ──────────────────────────────────────────────────────────────────
+function resetReading(){
+  shuffledDeck=[];drawn=[];pickCount=0;oraclePool=[];oracleChosen=null;
+
+  document.getElementById('cardsPool').innerHTML='';
+  document.getElementById('chosenRow').innerHTML='';
+  document.getElementById('fourthCardsRow').innerHTML='';
+  document.getElementById('oracleResults').innerHTML='';
+  document.getElementById('spreadSection').classList.remove('visible');
+  document.getElementById('fourthSection').classList.remove('visible');
+  document.getElementById('chosenRow').classList.remove('visible');
+  document.getElementById('revealBtn').disabled=false;
+  document.getElementById('questionSelect').disabled=false;
+  document.getElementById('questionSelect').value='';
+  document.getElementById('spreadLabel').textContent='Past · Present · Future';
+  document.getElementById('spreadHint').textContent='Choose your Past card ✦';
+  document.getElementById('spreadHint').classList.remove('done');
+  [0,1,2].forEach(function(i){
+    document.getElementById('pip'+i).classList.remove('active');
+  });
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

@@ -22,14 +22,10 @@
 
 /* ── BODY ── */
 body{
-  background-image: url("BG.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  
 
   font-family:'EB Garamond',Georgia,serif;
-  background:var(--bg);
+  background:var(--bg) url("BG.png") center/cover no-repeat fixed;
   color:var(--silver);
   min-height:100vh;
   overflow-x:hidden;}
@@ -41,7 +37,6 @@ body{
   background:
     radial-gradient(ellipse at 20% 50%,#1a083580 0%,transparent 60%),
     radial-gradient(ellipse at 80% 20%,#0a153080 0%,transparent 50%),
-    var(--bg);
 }
 .stars::before,.stars::after{
   content:'';position:absolute;inset:0;
